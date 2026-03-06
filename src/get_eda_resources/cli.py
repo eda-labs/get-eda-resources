@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import shutil
 import subprocess
 import sys
 import tarfile
@@ -119,6 +120,13 @@ def cli(
         raise typer.Exit(code=0)
 
     setup_logging(verbose)
+
+    if shutil.which("kubectl") is None:
+        console.print(
+            "[red]Required binary not found:[/red] `kubectl` is not in PATH.\n"
+            "Install kubectl and ensure it is available in your shell PATH."
+        )
+        raise typer.Exit(code=1)
 
     output_dir = out_dir / namespace
     output_dir.mkdir(parents=True, exist_ok=True)
