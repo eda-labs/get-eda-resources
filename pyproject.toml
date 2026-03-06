@@ -1,0 +1,23 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "get-eda-resources"
+version = "0.1.0"
+description = "Export Nokia EDA Kubernetes resources from a namespace"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "pyyaml",
+  "rich",
+  "typer",
+]
+
+[project.scripts]
+get-eda-resources = "get_eda_resources.cli:main"
+ger = "get_eda_resources.cli:main"
+
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/get_eda_resources"]
