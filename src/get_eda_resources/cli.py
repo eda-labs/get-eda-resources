@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import subprocess
+import sys
 import tarfile
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
@@ -97,6 +98,7 @@ def write_resources(
 
 
 def cli(
+    ctx: typer.Context,
     namespace: str = typer.Option("eda", help="Kubernetes namespace."),
     out_dir: Path = typer.Option(
         Path("eda-resources"), help="Output folder for exported files."
@@ -112,6 +114,10 @@ def cli(
     ),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Enable debug logging."),
 ) -> None:
+    if len(sys.argv) == 1:
+        console.print(ctx.get_help())
+        raise typer.Exit(code=0)
+
     setup_logging(verbose)
 
     output_dir = out_dir / namespace
