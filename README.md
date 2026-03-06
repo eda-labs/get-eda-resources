@@ -1,16 +1,13 @@
 # Get EDA Resources
 
-`get-eda-resources` tool (alias `ger`) exports Nokia EDA resources using the Kubernetes API (`kubectl`).
+`get-eda-resources` tool (alias `ger`) exports Nokia EDA resources using the Kubernetes API (`kubectl` required).
 It can be used to copy EDA resources between namespaces or clusters without taking a full EDA backup.
 
 ## Installation
 
-Requires [`uv`](https://docs.astral.sh/uv/getting-started/installation/).
-
-Install from this repository:
-
 ```bash
-uv tool install .
+curl eda.dev/uvx | sh -s -- \
+https://github.com/eda-labs/get-eda-resources/archive/refs/heads/make-a-tool.zip
 ```
 
 After installation, the commands are available as:
