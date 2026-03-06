@@ -7,7 +7,7 @@ It can be used to copy EDA resources between namespaces or clusters without taki
 
 ```bash
 curl eda.dev/uvx | sh -s -- \
-https://github.com/eda-labs/get-eda-resources/archive/refs/heads/make-a-tool.zip
+https://github.com/eda-labs/get-eda-resources/archive/refs/heads/main.zip
 ```
 
 After installation, the commands are available as:
