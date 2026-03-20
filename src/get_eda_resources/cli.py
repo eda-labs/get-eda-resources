@@ -1,3 +1,4 @@
+import importlib.metadata
 import json
 import logging
 import os
@@ -17,6 +18,27 @@ from rich.table import Table
 
 console = Console()
 logger = logging.getLogger("get_eda_resources")
+
+DISTRIBUTION_NAME = "get-eda-resources"
+VERSION_FALLBACK = "0.1.0"
+
+
+def _package_version() -> str:
+    try:
+        return importlib.metadata.version(DISTRIBUTION_NAME)
+    except importlib.metadata.PackageNotFoundError:
+        return VERSION_FALLBACK
+
+
+def _print_version() -> None:
+    console.print(f"version: [bold]{_package_version()}[/bold]")
+
+
+def _version_flag_callback(value: bool) -> None:
+    if value:
+        _print_version()
+        raise typer.Exit()
+
 
 # (apiGroup, kind) — excludes GVK from export (no kubectl get / no file).
 SKIP_GVKS: frozenset[tuple[str, str]] = frozenset(
@@ -110,8 +132,24 @@ def write_resources(
     return resource, len(filtered_items), output
 
 
-def cli(
+app = typer.Typer(
+    help="Export Nokia EDA Kubernetes resources from a namespace.",
+    invoke_without_command=True,
+    no_args_is_help=False,
+)
+
+
+@app.callback()
+def default_export(
     ctx: typer.Context,
+    version: bool = typer.Option(
+        False,
+        "--version",
+        "-V",
+        help="Show version and exit.",
+        callback=_version_flag_callback,
+        is_eager=True,
+    ),
     namespace: str = typer.Option("eda", help="Kubernetes namespace."),
     out_dir: Path = typer.Option(
         Path("eda-resources"), help="Output folder for exported files."
@@ -132,6 +170,9 @@ def cli(
     if len(sys.argv) == 1:
         console.print(ctx.get_help())
         raise typer.Exit(code=0)
+
+    if ctx.invoked_subcommand is not None:
+        return
 
     setup_logging(verbose)
 
@@ -211,8 +252,14 @@ def cli(
             )
 
 
+@app.command("version")
+def version_command() -> None:
+    """Print the installed tool version."""
+    _print_version()
+
+
 def main() -> None:
-    typer.run(cli)
+    app()
 
 
 if __name__ == "__main__":

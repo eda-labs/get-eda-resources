@@ -27,6 +27,8 @@ Exported files are written to `eda-resources/<namespace>` by default.
 
 ### Options
 
+- `--version`, `-V`: Print the tool version and exit.
+- `version`: Subcommand that prints the tool version and exits.
 - `--namespace`: Kubernetes namespace to export from (default: `eda`).
 - `--out-dir`: Directory where exported resources are written (default: `eda-resources`).
 - `--archive`: Create a tar.gz archive of exported resources.
