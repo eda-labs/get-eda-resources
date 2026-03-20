@@ -18,6 +18,11 @@ from rich.table import Table
 console = Console()
 logger = logging.getLogger("get_eda_resources")
 
+# (apiGroup, kind) — excludes GVK from export (no kubectl get / no file).
+SKIP_GVKS: frozenset[tuple[str, str]] = frozenset(
+    {("core.eda.nokia.com", "WaitForInput")}
+)
+
 
 def setup_logging(verbose: bool) -> None:
     level = logging.DEBUG if verbose else logging.INFO
@@ -47,6 +52,13 @@ def get_eda_crd_resources(group_suffix: str) -> list[str]:
         spec = crd.get("spec", {})
         group = spec.get("group")
         if not group or not group.endswith(group_suffix):
+            continue
+        kind = spec.get("names", {}).get("kind")
+        if kind and (group, kind) in SKIP_GVKS:
+            crd_name = (crd.get("metadata") or {}).get(
+                "name", f"{spec.get('names', {}).get('plural', '?')}.{group}"
+            )
+            logger.debug("Skipping excluded CRD: %s (%s/%s)", crd_name, group, kind)
             continue
         plural = spec.get("names", {}).get("plural")
         if plural:
@@ -113,7 +125,9 @@ def cli(
     archive: bool = typer.Option(
         False, "--archive", help="Create a tar.gz archive of exported resources."
     ),
-    verbose: bool = typer.Option(False, "--verbose", "-v", help="Enable debug logging."),
+    verbose: bool = typer.Option(
+        False, "--verbose", "-v", help="Enable debug logging."
+    ),
 ) -> None:
     if len(sys.argv) == 1:
         console.print(ctx.get_help())
@@ -140,7 +154,9 @@ def cli(
         )
         raise typer.Exit(code=1) from exc
     except json.JSONDecodeError as exc:
-        console.print("[red]kubectl did not return valid JSON while listing CRDs.[/red]")
+        console.print(
+            "[red]kubectl did not return valid JSON while listing CRDs.[/red]"
+        )
         raise typer.Exit(code=1) from exc
 
     if not resources:
@@ -159,10 +175,14 @@ def cli(
             ):
                 results.append(result)
     except subprocess.CalledProcessError as exc:
-        console.print(f"[red]kubectl failed while exporting resources:[/red]\n{exc.stderr.strip()}")
+        console.print(
+            f"[red]kubectl failed while exporting resources:[/red]\n{exc.stderr.strip()}"
+        )
         raise typer.Exit(code=1) from exc
     except json.JSONDecodeError as exc:
-        console.print("[red]kubectl returned invalid JSON while exporting resources.[/red]")
+        console.print(
+            "[red]kubectl returned invalid JSON while exporting resources.[/red]"
+        )
         raise typer.Exit(code=1) from exc
 
     written = [(resource, count, path) for resource, count, path in results if path]
@@ -197,4 +217,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

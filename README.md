@@ -23,8 +23,6 @@ ger --help
 get-eda-resources --namespace <namespace>
 ```
 
-> Derived resources (`eda.nokia.com/source=derived`) are skipped.
-
 Exported files are written to `eda-resources/<namespace>` by default.
 
 ### Options
@@ -35,6 +33,11 @@ Exported files are written to `eda-resources/<namespace>` by default.
 - `--set-namespace`: Rewrite exported resource namespaces to this value.
 - `--group`: CRD group suffix to match (default: `eda.nokia.com`).
 - `--verbose`, `-v`: Enable debug logging.
+
+### Excluded Resources
+
+- `waitforinput.core.eda.nokia.com` resources are excluded from export.
+- `eda.nokia.com/source=derived` tagged resources are excluded from export.
 
 ## Applying Fetched Resources
 
