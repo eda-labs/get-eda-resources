@@ -41,6 +41,18 @@ Exported files are written to `eda-resources/<namespace>` by default.
 - `waitforinput.core.eda.nokia.com` resources are excluded from export.
 - `eda.nokia.com/source=derived` tagged resources are excluded from export.
 
+## Edit exported files
+
+```bash
+get-eda-resources edit [-d DIR] toponode --cx-mode [--namespace NS] [--file PATH]
+```
+
+- `-d` / `--directory`: Export root directory (default: `eda-resources`). Same role as export `--out-dir`.
+- `toponode --cx-mode`: For each `TopoNode` in `toponodes.core.nokia.com.yaml`: sets `spec.onBoarded` to `false`; removes `spec.productionAddress`; moves `spec.macAddress` and `spec.serialNumber` into `metadata.annotations` under the same keys (string values). The file defaults to `<directory>/<namespace>/toponodes.core.nokia.com.yaml`. If you omit `--namespace` and `-d` contains **exactly one** subdirectory, that name is used as the namespace; otherwise the default namespace is `eda`. Passing `-n` / `--namespace` always overrides this.
+- `-f` / `--file`: Use an explicit YAML path instead of the default under `-d` / `--namespace`.
+
+Without `--cx-mode`, the command exits with a reminder to pass the flag (no file changes).
+
 ## Applying Fetched Resources
 
 To apply exported resources to another cluster or namespace, you can use the
